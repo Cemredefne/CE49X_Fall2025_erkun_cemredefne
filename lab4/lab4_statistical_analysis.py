@@ -186,6 +186,7 @@ def calculate_descriptive_stats(df_concrete):
     plt.legend()
     plt.grid(alpha=0.3, linestyle='--')
     plt.show()
+    plt.close()
 
     #Calculating quartiles
     Q1 = df_concrete['strength_mpa'].quantile(0.25)
@@ -203,7 +204,10 @@ def calculate_descriptive_stats(df_concrete):
     plt.text(Q2, 0.05, f"Median (Q2) = {Q2:.2f}", rotation=90, verticalalignment='bottom', color='green', fontsize=10, fontweight='bold')
     plt.text(Q3, 0.05, f"Q3 = {Q3:.2f}", rotation=90, verticalalignment='bottom', color='red', fontsize=10, fontweight='bold')
 
+    plt.savefig("Boxplot of Concrete Strength (MPa).png")
     plt.show()
+    plt.close()
+
 
     return mean_val, median_val, mode_val, std_val, var_val , skew_val , kurtosis_val
 
@@ -223,6 +227,31 @@ def calculate_probability_binomial(n, p):
     print(f"P(X=3): {prob_exactly_3:.3f}")
     print("\n--- What is probability of less than 5 defective components? ---")
     print(f"P(X<=5): {prob_at_most_5:.3f}")
+    # 4. PLOT PMF AND CDF
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    k_values = np.arange(binom.ppf(0.001, n, p), binom.ppf(0.999, n, p) + 1)
+
+    # Plot 1: Probability Mass Function (PMF)
+    axes[0].bar(k_values, binom.pmf(k_values, n, p), color='skyblue')
+    axes[0].set_title('Binomial Probability Mass Function (PMF)')
+    axes[0].set_xlabel('Number of Defects (k)')
+    axes[0].set_ylabel('Probability')
+    axes[0].grid(axis='y', alpha=0.5)
+
+    # Plot 2: Cumulative Distribution Function (CDF)
+    axes[1].step(k_values, binom.cdf(k_values, n, p), color='darkred', where='post')
+    axes[1].set_title('Binomial Cumulative Distribution Function (CDF)')
+    axes[1].set_xlabel('Number of Defects (k)')
+    axes[1].set_ylabel('Cumulative Probability')
+    axes[1].grid(axis='y', alpha=0.5)
+
+    plt.tight_layout()
+
+    # 5. GÖRSELİ KAYDETME
+    plt.savefig("binomial_distribution_analysis.png")
+    plt.show()
+    plt.close()
+    print("\nVisual analysis saved to: binomial_distribution_analysis.png")
 
     return prob_exactly_3,prob_at_most_5
 
@@ -230,6 +259,7 @@ def calculate_probability_normal(mean, std):
     """Calculate normal probabilities."""
     mean = 250
     std = 15
+    variance = std ** 2
 
     #Exceeding 280 mpa
     prob_exceeds_280 = 1 - norm.cdf(280, loc=mean, scale=std)
@@ -243,9 +273,71 @@ def calculate_probability_normal(mean, std):
     print(f" ={percentage_exceeds_280:.3f}")
     print("\n--- What is the 95th percentile? ---")
     print(f" ={percentile_95:.3f}")
+    # 1. APPLY TO A REAL ENGINEERING SCENARIO (Probabilities)
 
-    return  percentage_exceeds_280,percentile_95
+    # Exceeding 280 MPa: P(X > 280) = 1 - P(X <= 280)
+    prob_exceeds_280 = 1 - norm.cdf(280, loc=mean, scale=std)
+    percentage_exceeds_280 = prob_exceeds_280 * 100
 
+    # Finding 95th percentile
+    percentile_95 = norm.ppf(0.95, loc=mean, scale=std)
+
+    # 2. CALCULATE MEAN AND VARIANCE (Expected Value)
+    mean_expected = norm.mean(loc=mean, scale=std)
+    variance_expected = norm.var(loc=mean, scale=std)
+
+    # 3. GENERATE RANDOM SAMPLES (Simulation)
+    N_SAMPLES = 10000  # Generate a large number of simulations
+    random_samples = norm.rvs(loc=mean, scale=std, size=N_SAMPLES)
+
+    # Calculate sample moments for comparison
+    sample_mean = np.mean(random_samples)
+    sample_var = np.var(random_samples)
+
+    # --- CONSOLE OUTPUTS ---
+    print("\n--- Normal Analysis: Steel Yield Strength (mu=250, sigma=15) ---")
+
+    print("\n[Probability Calculations]")
+    print(f"Percentage Exceeding 280 MPa: {percentage_exceeds_280:.3f}%")
+    print(f"95th Percentile (MPa): {percentile_95:.3f}")
+
+    print("\n[Distribution Moments]")
+    print(f"Theoretical Mean (E[X]): {mean_expected:.2f}")
+    print(f"Theoretical Variance (Var[X]): {variance_expected:.2f}")
+    print(f"Simulated Mean: {sample_mean:.2f}")
+    print(f"Simulated Variance: {sample_var:.2f}")
+
+    # 4. PLOT PDF AND CDF
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Define the range for plotting (e.g., Mean +/- 3*Std Dev)
+    x_min = mean - 3.5 * std
+    x_max = mean + 3.5 * std
+    x = np.linspace(x_min, x_max, 200)
+
+    # Plot 1: Probability Density Function (PDF)
+    axes[0].plot(x, norm.pdf(x, loc=mean, scale=std), color='darkred', linewidth=2)
+    axes[0].set_title('Normal Probability Density Function (PDF)')
+    axes[0].set_xlabel('Yield Strength (MPa)')
+    axes[0].set_ylabel('Density')
+    axes[0].grid(axis='y', alpha=0.5)
+
+    # Plot 2: Cumulative Distribution Function (CDF)
+    axes[1].plot(x, norm.cdf(x, loc=mean, scale=std), color='darkblue', linewidth=2)
+    axes[1].set_title('Normal Cumulative Distribution Function (CDF)')
+    axes[1].set_xlabel('Yield Strength (MPa)')
+    axes[1].set_ylabel('Cumulative Probability')
+    axes[1].grid(axis='y', alpha=0.5)
+
+    plt.tight_layout()
+
+    # 5. SAVE THE VISUALIZATION
+    plt.savefig("normal_distribution_analysis.png")
+    plt.show()
+    plt.close()
+    print("\nVisual analysis saved to: normal_distribution_analysis.png")
+
+    return percentage_exceeds_280, percentile_95
 
 def calculate_probability_poisson(lambda_param):
     """Calculate Poisson probabilities."""
@@ -261,7 +353,59 @@ def calculate_probability_poisson(lambda_param):
     print(f"P(X=8): {prob_exactly_8:.3f}")
     print("\n--- What is probability of > 15 trucks in an hour? ---")
     print(f"P(X>15): {prob_more_than_15:.3f}")
-    return prob_exactly_8 , prob_more_than_15
+
+    # 2. CALCULATE MEAN AND VARIANCE (Expected Value)
+    mean_expected = poisson.mean(mu)
+    variance_expected = poisson.var(mu)
+
+    # 3. GENERATE RANDOM SAMPLES (Simulation)
+    N_SAMPLES = 10000  # Generate a large number of simulations
+    random_samples = poisson.rvs(mu=mu, size=N_SAMPLES)
+
+    # Calculate sample moments for comparison
+    sample_mean = np.mean(random_samples)
+    sample_var = np.var(random_samples)
+
+    # --- CONSOLE OUTPUTS ---
+    print("\n--- Poisson Analysis: Bridge Load Events (lambda=10) ---")
+
+    print("\n[Probability Calculations]")
+    print(f"P(X=8) (Exactly 8 trucks): {prob_exactly_8:.4f}")
+    print(f"P(X>15) (More than 15 trucks): {prob_more_than_15:.4f}")
+
+    print("\n[Distribution Moments]")
+    print(f"Theoretical Mean (E[X]): {mean_expected:.2f}")
+    print(f"Theoretical Variance (Var[X]): {variance_expected:.2f}")
+    print(f"Simulated Mean: {sample_mean:.2f}")
+    print(f"Simulated Variance: {sample_var:.2f}")
+
+    # 4. PLOT PMF AND CDF
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Define the range for plotting (k values)
+    k_values = np.arange(poisson.ppf(0.001, mu), poisson.ppf(0.999, mu) + 1)
+
+    # Plot 1: Probability Mass Function (PMF)
+    axes[0].bar(k_values, poisson.pmf(k_values, mu), color='skyblue')
+    axes[0].set_title('Poisson Probability Mass Function (PMF)')
+    axes[0].set_xlabel('Number of Events (k)')
+    axes[0].set_ylabel('Probability')
+    axes[0].grid(axis='y', alpha=0.5)
+
+    # Plot 2: Cumulative Distribution Function (CDF)
+    axes[1].step(k_values, poisson.cdf(k_values, mu), color='darkred', where='post')
+    axes[1].set_title('Poisson Cumulative Distribution Function (CDF)')
+    axes[1].set_xlabel('Number of Events (k)')
+    axes[1].set_ylabel('Cumulative Probability')
+    axes[1].grid(axis='y', alpha=0.5)
+
+    plt.tight_layout()
+
+    # 5. SAVE THE VISUALIZATION
+    plt.savefig("poisson_distribution_analysis.png")
+    plt.show()
+    plt.close()
+    return prob_exactly_8, prob_more_than_15
 
 
 def calculate_probability_exponential(mean):
@@ -281,6 +425,56 @@ def calculate_probability_exponential(mean):
     print("\n--- What is probability of surviving beyond 1500 hours? ---")
     print(f"P(X>1500): {prob_survival_beyond_1500:.3f}")
 
+    # 2. CALCULATE MEAN AND VARIANCE (Expected Value)
+    mean_expected = expon.mean(loc=0, scale=scale_param)
+    variance_expected = expon.var(loc=0, scale=scale_param)
+
+    # 3. GENERATE RANDOM SAMPLES (Simulation)
+    N_SAMPLES = 10000
+    random_samples = expon.rvs(loc=0, scale=scale_param, size=N_SAMPLES)
+
+    # Calculate sample moments for comparison
+    sample_mean = np.mean(random_samples)
+    sample_var = np.var(random_samples)
+
+    # --- CONSOLE OUTPUTS ---
+    print("\n--- Exponential Analysis: Component Lifetime (Mean=1000 hours) ---")
+
+    print("\n[Probability Calculations]")
+    print(f"P(X<500) (Failure before 500h): {prob_failure_before_500:.4f}")
+    print(f"P(X>1500) (Surviving beyond 1500h): {prob_survival_beyond_1500:.4f}")
+
+    print("\n[Distribution Moments]")
+    print(f"Theoretical Mean (E[X]): {mean_expected:.2f}")
+    print(f"Theoretical Variance (Var[X]): {variance_expected:.2f}")
+    print(f"Simulated Mean: {sample_mean:.2f}")
+    print(f"Simulated Variance: {sample_var:.2f}")
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Define the range for plotting (x-axis)
+    x_max = 4 * mean_lifetime  # 4000 saate kadar çizim yapar
+    x = np.linspace(0, x_max, 200)
+
+    # Plot 1: Probability Density Function (PDF)
+    axes[0].plot(x, expon.pdf(x, loc=0, scale=scale_param), color='darkred', linewidth=2)
+    axes[0].set_title('Exponential Probability Density Function (PDF)')
+    axes[0].set_xlabel('Lifetime (Hours)')
+    axes[0].set_ylabel('Density')
+    axes[0].grid(axis='y', alpha=0.5)
+
+    # Plot 2: Cumulative Distribution Function (CDF)
+    axes[1].plot(x, expon.cdf(x, loc=0, scale=scale_param), color='darkblue', linewidth=2)
+    axes[1].set_title('Exponential Cumulative Distribution Function (CDF)')
+    axes[1].set_xlabel('Lifetime (Hours)')
+    axes[1].set_ylabel('Cumulative Probability')
+    axes[1].grid(axis='y', alpha=0.5)
+
+    plt.tight_layout()
+    # 5. SAVE THE VISUALIZATION
+    plt.savefig("exponential_distribution_analysis.png")
+    plt.show()
+    plt.close()
     return prob_failure_before_500, prob_survival_beyond_1500
 
 
@@ -372,7 +566,10 @@ def apply_bayes_theorem(prior, sensitivity, specificity):
     plt.xlim(-0.5, 7.5)
     plt.ylim(-3.0, 5.0)
     plt.axis('off')
+
+    plt.savefig("Bayes Theorem Results.png")
     plt.show()
+    plt.close()
 
     print("\n--- If test is positive, what is probability of actual damage? ---")
     print(f"If test is positive, the probability of actual damage is: ({P_D_given_T * 100:.2f}%)")
@@ -421,8 +618,47 @@ def plot_material_comparison(df_material):
         plt.ylabel('Yield Strength (MPa)')
         plt.xticks(rotation=45, ha='right')
         plt.grid(axis='y', linestyle='--')
-        plt.show()
 
+
+        # Q1, Q2 (Medyan) ve Q3 değerlerini hesapla
+        quartiles = df_material.groupby('material_type')['yield_strength_mpa'].quantile(
+            [0.25, 0.5, 0.75]).unstack().reset_index()
+        quartiles.columns = ['material_type', 'Q1', 'Q2_Median', 'Q3']
+
+        # IQR hesapla
+        quartiles['IQR'] = quartiles['Q3'] - quartiles['Q1']
+
+        # Etiketler için X pozisyonlarını al
+        material_types = df_material['material_type'].unique()
+        x_positions = {material: i for i, material in enumerate(material_types)}
+
+        # Dikey aralık referansı
+        y_range = df_material['yield_strength_mpa'].max() - df_material['yield_strength_mpa'].min()
+
+        for index, row in quartiles.iterrows():
+            material = row['material_type']
+            x_pos = x_positions[material]
+
+            # Q1 Label (Kutunun altı)
+            plt.text(x_pos, row['Q1'], f'Q1: {row["Q1"]:.1f}',
+                     ha='center', va='top', fontsize=9, color='darkgreen',
+                     bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', boxstyle='round,pad=0.1'))
+
+            # Q2 (Medyan) Label (Kutunun ortası)
+            plt.text(x_pos, row['Q2_Median'], f'Q2: {row["Q2_Median"]:.1f}',
+                     ha='center', va='center', fontsize=10, color='darkblue', fontweight='bold',
+                     bbox=dict(facecolor='yellow', alpha=0.8, edgecolor='none', boxstyle='round,pad=0.1'))
+
+            # Q3 Label (Kutunun üstü)
+            plt.text(x_pos, row['Q3'], f'Q3: {row["Q3"]:.1f}',
+                     ha='center', va='bottom', fontsize=9, color='darkgreen',
+                     bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', boxstyle='round,pad=0.1'))
+
+            # IQR Label (Q3'ün biraz üstüne yerleştirilir)
+            iqr_label_pos_y = row['Q3'] + 0.04 * y_range
+            plt.text(x_pos, iqr_label_pos_y, f'IQR: {row["IQR"]:.1f}',
+                     ha='center', va='bottom', fontsize=9, color='black',
+                     bbox=dict(facecolor='lightgray', alpha=0.7, edgecolor='none', boxstyle='round,pad=0.1'))
         # 3. Compare Means and Standard Deviations
 
         print("\n--- Comparison and Interpretation ---")
@@ -433,6 +669,9 @@ def plot_material_comparison(df_material):
 
         highest_mean_material = means.index[0]
         highest_std_material = stds.index[0]
+        plt.savefig("material_comparison_boxplot.png")
+        plt.show()
+        plt.close()
 
         print("A) Mean Strength Comparison:")
         print(f"   Highest Mean Strength: {highest_mean_material} ({means.iloc[0]:.2f} MPa)")
@@ -498,6 +737,7 @@ def plot_distribution_fitting(df_concrete):
     plt.ylabel('Density')
     plt.legend()
     plt.grid(axis='y', linestyle='--')
+    plt.savefig("Concrete Strength: Histogram with Fitted Normal Distribution.png")
     plt.show()
 
     real_data = df_concrete['strength_mpa']
@@ -546,6 +786,7 @@ def plot_distribution_fitting(df_concrete):
     plt.ylabel('Density')
     plt.legend()
     plt.grid(axis='y', linestyle='--')
+    plt.savefig("Real vs. Synthetic Data Comparison (Concrete Strength).png")
     plt.show()
 
 
@@ -563,6 +804,7 @@ def main():
     prob_exactly_3,prob_at_most_5 = calculate_probability_binomial(100, 0.5)
     prob_exactly_8, prob_more_than_15 = calculate_probability_poisson(10)
     percentage_exceeds_280, percentile_95 = calculate_probability_normal(250,15)
+    prob_failure_before_500, prob_survival_beyond_1500 = calculate_probability_exponential(100)
     prob_failure_before_500, prob_survival_beyond_1500 = calculate_probability_exponential(1000)
     apply_bayes_theorem(0.05,0.95,0.90)
     plot_distribution_fitting(df_concrete)

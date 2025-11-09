@@ -1,0 +1,302 @@
+==================================================
+lab4_statistical_report
+==================================================
+
+--- Basic Informations: CONCRETE STRENGTH Dataset ---
+
+Shape: (100, 4)
+
+Column Names and Data Types:
+['batch_id', 'age_days', 'mix_type', 'strength_mpa']
+
+batch_id         object
+age_days          int64
+mix_type         object
+strength_mpa    float64
+dtype: object
+
+--- Missing Value Handling ---
+CONCRETE STRENGTH Dataset: Dropped 0 rows (Remaining: 100 rows)
+
+--- Summary Statistics ---
+
+  batch_id  age_days  mix_type  strength_mpa
+0  Batch_A         7  Standard          28.5
+1  Batch_A         7  Standard          29.2
+2  Batch_A         7  Standard          27.8
+3  Batch_A         7  Standard          30.1
+4  Batch_A         7  Standard          28.9
+
+         age_days  strength_mpa
+count  100.000000    100.000000
+mean    26.250000     35.060000
+std     18.861202      6.162693
+min      7.000000     21.800000
+25%     12.250000     31.100000
+50%     21.000000     34.200000
+75%     35.000000     39.125000
+max     56.000000     47.100000
+==================================================
+
+--- Basic Informations: STRUCTURAL LOADS Dataset ---
+
+Shape: (192, 3)
+
+Column Names and Data Types:
+['timestamp', 'load_kN', 'component_type']
+
+timestamp          object
+load_kN           float64
+component_type     object
+dtype: object
+
+--- Missing Value Handling ---
+STRUCTURAL LOADS Dataset: Dropped 0 rows (Remaining: 192 rows)
+
+--- Summary Statistics ---
+
+             timestamp  load_kN component_type
+0  2024-01-01 00:00:00     28.5         Beam_A
+1  2024-01-01 01:00:00     32.1         Beam_B
+2  2024-01-01 02:00:00     25.8       Column_A
+3  2024-01-01 03:00:00     29.3       Column_B
+4  2024-01-01 04:00:00     22.4         Beam_A
+
+          load_kN
+count  192.000000
+mean    29.907292
+std      3.284670
+min     22.400000
+25%     27.400000
+50%     29.850000
+75%     32.325000
+max     37.300000
+==================================================
+
+--- Basic Informations: MATERIAL PROPERTIES Dataset ---
+
+Shape: (200, 3)
+
+Column Names and Data Types:
+['material_type', 'test_number', 'yield_strength_mpa']
+
+material_type          object
+test_number             int64
+yield_strength_mpa    float64
+dtype: object
+
+--- Missing Value Handling ---
+MATERIAL PROPERTIES Dataset: Dropped 0 rows (Remaining: 200 rows)
+
+--- Summary Statistics ---
+
+  material_type  test_number  yield_strength_mpa
+0         Steel            1               385.2
+1         Steel            2               412.5
+2         Steel            3               398.7
+3         Steel            4               405.3
+4         Steel            5               391.8
+
+       test_number  yield_strength_mpa
+count   200.000000          200.000000
+mean     25.500000          232.757500
+std      14.467083          134.737296
+min       1.000000           32.300000
+25%      13.000000          149.675000
+50%      25.500000          246.950000
+75%      38.000000          334.800000
+max      50.000000          419.200000
+
+=== Concrete Strength Statistics ===
+
+Mean Concrete Strength (MPa)   : 35.06
+Median Concrete Strength (MPa) : 34.20
+Mode Concrete Strength (MPa)   : 31.80
+Standard Deviation : 6.16
+Variance           : 37.98
+Skewness           : 0.05
+Kurtosis           : -0.67
+
+=== Assessing the Shape of the Concrete Strength Distribution ===
+
+Mean > Median > Mode: Concrete Strength Distribution is **Right-Skewed**.
+When Each Measure is Appropriate:
+- Mean: Sensitive to high outliers, not ideal here since it overstates typical strength.
+- Median: Best representation of typical concrete strength; resistant to outliers.
+- Mode: Shows the most frequently produced concrete strength class (e.g., standard mix).
+For this dataset, **Median** is the most reliable measure.
+
+Skewness value: 0.05
+   → The data is **fairly symmetric** (little skew).
+
+Kurtosis value: -0.67
+   → The distribution is **Platykurtic** — flatter than a normal curve.
+     This indicates less extreme variation and a more uniform spread of strength values.
+
+Standard Deviation : 6.16
+Variance           : 37.98
+→ A higher standard deviation or variance indicates that the concrete strengths vary widely, while lower values suggest a more consistent quality of concrete.
+
+=== Design & Quality Interpretation ===
+
+The distribution is approximately Symmetric.
+- Mean and median are similar → process is stable.
+- The mean ( 35.06 MPa) can also be used for **design strength** and quality assessment.
+- Low skewness indicates consistent batching and curing.
+
+High standard deviation (σ = 6.16 ): strength varies widely.
+- Indicates variable quality; mix control or curing inconsistency.
+- Implement stricter batching or material quality monitoring.
+
+Low kurtosis ( -0.67 ): wider spread — monitor variability.
+- Suggests occasional outliers; quality process can be optimized.
+
+--- Statistical Summary (Yield Strength per Material) ---
+               count     mean        std    min      25%     50%      75%  \
+material_type
+Aluminum        50.0  196.632   7.633290  186.2  190.475  194.50  203.850
+Composite       50.0  299.042  10.384449  281.5  290.025  298.70  307.675
+Concrete        50.0   36.258   2.218668   32.3   34.725   36.20   38.275
+Steel           50.0  399.098  10.398420  381.6  390.125  399.05  407.775
+
+                 max
+material_type
+Aluminum       212.4
+Composite      319.2
+Concrete        40.1
+Steel          419.2
+
+--- Comparison and Interpretation ---
+A) Mean Strength Comparison:
+   Highest Mean Strength: Steel (399.10 MPa)
+   Lowest Mean Strength: Concrete (36.26 MPa)
+
+B) Variability Comparison (Standard Deviation):
+   Highest Variability (Std Dev): Steel (10.40 MPa)
+   Lowest Variability (Std Dev): Concrete (2.22 MPa)
+
+C) Variability Interpretation:
+The material with the highest variability is **Steel**.
+This material's yield strength values are the most spread out from the mean,
+suggesting that its mechanical properties are less consistent and predictable,
+which is a critical factor for engineering design safety margins.
+
+--- Quality control: 100 components tested, 5% defect rate. ---
+
+--- What is probability of exactly 3 defective components? ---
+P(X=3): 0.140
+
+--- What is probability of less than 5 defective components? ---
+P(X<=5): 0.616
+
+Visual analysis saved to: binomial_distribution_analysis.png
+
+--- Bridge load events: Average 10 heavy trucks per hour. ---
+
+--- What is probability of exactly 8 trucks in an hour? ---
+P(X=8): 0.113
+
+--- What is probability of > 15 trucks in an hour? ---
+P(X>15): 0.049
+
+--- Poisson Analysis: Bridge Load Events (lambda=10) ---
+
+[Probability Calculations]
+P(X=8) (Exactly 8 trucks): 0.1126
+P(X>15) (More than 15 trucks): 0.0487
+
+[Distribution Moments]
+Theoretical Mean (E[X]): 10.00
+Theoretical Variance (Var[X]): 10.00
+Simulated Mean: 9.99
+Simulated Variance: 9.75
+
+--- Steel yield strength: Mean = 250 MPa, Std = 15 MPa. ---
+
+--- What percentage exceeds 280 MPa? ---
+ =2.275
+
+--- What is the 95th percentile? ---
+ =274.673
+
+--- Normal Analysis: Steel Yield Strength (mu=250, sigma=15) ---
+
+[Probability Calculations]
+Percentage Exceeding 280 MPa: 2.275%
+95th Percentile (MPa): 274.673
+
+[Distribution Moments]
+Theoretical Mean (E[X]): 250.00
+Theoretical Variance (Var[X]): 225.00
+Simulated Mean: 250.16
+Simulated Variance: 226.61
+
+Visual analysis saved to: normal_distribution_analysis.png
+
+--- Component lifetime: Mean = 1000 hours. ---
+
+--- What is probability of failure before 500 hours? ---
+P(X<500): 0.393
+
+--- What is probability of surviving beyond 1500 hours? ---
+P(X>1500): 0.223
+
+--- Exponential Analysis: Component Lifetime (Mean=1000 hours) ---
+
+[Probability Calculations]
+P(X<500) (Failure before 500h): 0.3935
+P(X>1500) (Surviving beyond 1500h): 0.2231
+
+[Distribution Moments]
+Theoretical Mean (E[X]): 1000.00
+Theoretical Variance (Var[X]): 1000000.00
+Simulated Mean: 1004.75
+Simulated Variance: 1001688.44
+
+--- Component lifetime: Mean = 1000 hours. ---
+
+--- What is probability of failure before 500 hours? ---
+P(X<500): 0.393
+
+--- What is probability of surviving beyond 1500 hours? ---
+P(X>1500): 0.223
+
+--- Exponential Analysis: Component Lifetime (Mean=1000 hours) ---
+
+[Probability Calculations]
+P(X<500) (Failure before 500h): 0.3935
+P(X>1500) (Surviving beyond 1500h): 0.2231
+
+[Distribution Moments]
+Theoretical Mean (E[X]): 1000.00
+Theoretical Variance (Var[X]): 1000000.00
+Simulated Mean: 1001.69
+Simulated Variance: 988888.03
+
+--- If test is positive, what is probability of actual damage? ---
+If test is positive, the probability of actual damage is: (33.33%)
+Despite the test's high accuracy, the low prior damage rate (5%) leads to a significant risk of False Positives.
+Implications:
+1. **High False Positive Risk:** Approximately two-thirds (0.67) of positive test results are likely false alarms.
+2. **Decision Rule:** Engineers should NOT immediately schedule repairs based on a single positive test.
+3. **Required Action:** A positive result should only serve to prioritize the structure for a mandatory SECONDARY, more reliable, visual or invasive inspection, to prevent unnecessary cost and resource waste.
+
+
+--- Compare fitted distribution parameters with sample statistics. ---
+1. SAMPLE STATISTICS:
+   Mean : 	35.0600 MPa
+   Std Dev : 	6.1627 MPa (N-1 Method)
+--------------------------------------------------
+2. FITTED DISTRIBUTION PARAMETERS (Uydurulmuş Parametreler):
+   Fitted Mean (loc): 	35.0600 MPa
+   Fitted Std Dev (scale): 	6.1318 MPa (MLE Method)
+--------------------------------------------------
+--- PARAMETER VALIDATION: SYNTHETIC VS FITTED ---
+| Parameter       | Fitted (Target) | Synthetic (Generated) |
+|---------------|---------------|---------------|
+| Mean            | 35.0600         | 35.0157         |
+| Std Dev         | 6.1627          | 6.3026          |
+--------------------------------------------------
+Validation: Synthetic parameters closely match the fitted parameters.
+
+Process finished with exit code 0
