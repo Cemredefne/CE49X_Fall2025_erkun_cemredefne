@@ -11,8 +11,8 @@ pd.set_option('display.width', 1000)
 """
 
 # Veri Dosyalarının Yüklenmesi
-berlin_file = 'berlin_era5_wind_20241231_20241231.csv'
-munich_file = 'munich_era5_wind_20241231_20241231.csv'
+berlin_file = '../datasets/berlin_era5_wind_20241231_20241231.csv'
+munich_file = '../datasets/munich_era5_wind_20241231_20241231.csv'
 
 
 def load_and_explore_datasets(berlin_file, munich_file):
